@@ -47,7 +47,8 @@ if __name__ == '__main__':
 
             for prim in geom.primitives():
 
-                #determine the VertexSemantic
+                #determine the VertexSemantic --------------------------------------------------------------------------
+
                 mat = prim.material
                 value = getattr(mat.effect, 'diffuse')
                 if (isinstance(value, tuple)):
@@ -59,6 +60,8 @@ if __name__ == '__main__':
                     colladaimage = value.sampler.surface.image
                     jsonobject["DiffuseMap"] = colladaimage.path
                     jsonobject['VertexSemantic'] = 'pt'
+
+                #-------------------------------------------------------------------------------------------------------
 
 
                 trinr = 0

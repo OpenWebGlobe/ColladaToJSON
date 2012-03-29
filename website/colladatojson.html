@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+<title>OpenWebGlobe SDK: Collada to JSON Converter</title>
+
+
+<script type="text/javascript">
+
+    
+    function main()
+    {
+        
+        
+        
+    }
+
+    function conversionStart()
+    {
+        //Check input fields
+        var lng = document.getElementById("input_lng").value;
+        var lat = document.getElementById("input_lat").value;
+        var elv = document.getElementById("input_elv").value;
+        var filepath = document.getElementById("input_file").value;
+
+        console.log(lng);
+        console.log(lat);
+        console.log(elv);
+        console.log(filepath);
+
+
+        // If all input fields correct, start conversion
+
+        url = "http://localhost:8000/";
+        params = "a=1&b=2";
+        http_request = new window.XMLHttpRequest();
+        http_request.open("GET",url+"?"+params, true);
+        http_request.onreadystatechange =  cbfConversion;
+
+      //  http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        //  http_request.setRequestHeader("Content-length", params.length);
+      //  http_request.setRequestHeader("Connection", "close");
+        //http_request.setRequestHeader("Cache-Control", "public");
+        http_request.send();
+
+
+
+        //display progress animation...
+
+    }
+
+    function cbfConversion()
+    {
+        if (http_request.readyState == 4)// && http_request.status == 200)
+        {
+           alert(http_request.responseText);
+        }
+    }
+//----------------------------------------------------------------------------------------------------------------------
+
+
+</script>
+
+</head>
+<body onload="main()">
+
+    <div id="divMainTitle"><h1>The OpenWebGlobe Collada to JSON Converter</h1></div>
+    <div id="divMainEntry">
+        <form>
+            <p>Select a Collada (*.dae) file or drag a file into this panel.<br>
+                <input id="input_file" name="File" type="file" size="50" maxlength="100000" accept="text/*">
+            <p>Center</p>
+                <table>
+                    <td>
+                        <tr>
+                            Longitude: <input id="input_lng" type="text">
+                        </tr>
+                    </td>
+                    <td>
+                        <tr>
+                            Latitude: <input id="input_lat" type="text">
+                        </tr>
+                    </td>
+                    <td>
+                        <tr>
+                            Elevation: <input  id="input_elv" type="text">
+                        </tr>
+                    </td>
+                </table>
+            <input type="button" value="Convert" onclick="conversionStart()">
+        </form>
+    </div>
+
+    <div id="divPreview"></div>
+
+</body>
+

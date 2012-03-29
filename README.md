@@ -7,6 +7,7 @@ description by the python script converter.py
 
 It is planned to create an online platform where users can perform this conversion online.
 
+
 Dependencies
 ========================
 The converter uses pycollada to access collada DOM.
