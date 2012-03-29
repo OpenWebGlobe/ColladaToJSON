@@ -2,14 +2,14 @@ OpenWebGlobe SDK Collada To JSON Converter
 ========================
 
 This repository contains the source of the Collada To JSON Converter.
-Arbitrary Collada Files (*.dae) can converted into the OpenWebGlobe Format for 3d model
+Arbitrary Collada Files (*.dae) can converted into the OpenWebGlobe format for 3d model
 description by the python script converter.py
 
 It is planned to create an online platform where users can perform this conversion online.
 
-Dependecies
+Dependencies
 ========================
-The converter uses pycollada to acces collada DOM.
+The converter uses pycollada to access collada DOM.
 
 License
 =======
