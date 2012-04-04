@@ -1,18 +1,23 @@
+from collada.triangleset import BoundTriangleSet
+
 __author__ = 'benjamin.loesch'
 
 import collada
 import sys
 import traceback
+import math
 
-
-print 'Attempting to load file %s' % sys.argv[1]
 
 vertices = []
 index = []
 
+
+
+
 def write_to_json(dict,file):
 
-    file.write('\t[[{\n')
+
+    file.write('{\n')
     for key in dict:
         if str(key)=='Color':
             continue
@@ -24,28 +29,51 @@ def write_to_json(dict,file):
         else:
             file.write('\"'+str(key)+'\" : '+str(dict[key])+',\n')
     file.seek(-3,1) #set cursor pos back to remove last ','
-    file.write('\n\t}]]\n')
-    file.close()
+    file.write('\n\t}\n')
 
 
-if __name__ == '__main__':
+
+
+def convertCollada(filename,colladastring,center):
+
+    tmpColladaFilename = 'tmp'+filename
+    part = filename.split('.')
+    tmpJsonFilename = part[0]+'.json'
+
+    colfile = open(tmpColladaFilename,'w')
+    colfile.write(colladastring)
+    colfile.close()
 
     try:
-        col = collada.Collada(sys.argv[1],\
+
+        col = collada.Collada(tmpColladaFilename,\
             ignore=[collada.DaeUnsupportedError, collada.DaeBrokenRefError])
 
-        file = open('../output/test.json','w')
+        upaxis = col.assetInfo.upaxis;
+        scale = col.assetInfo.unitmeter;
+        if scale is None:
+            scale=1
+        else:
+            scale=float(scale)
+
+
+
+        file = open(tmpJsonFilename,'w')
+        file.write('\t[[')
 
         for geom in col.scene.objects('geometry'):
             id = 1
             jsonobject = {}
-            jsonobject['Center'] = [8.365824,47.022749,400]
+            jsonobject['Center'] = center
             jsonobject['IndexSemantic'] = 'TRIANGLES'
             jsonobject['VertexSemantic'] = 'p'
             jsonobject['Vertices']= []
             jsonobject['Indices'] = []
 
             for prim in geom.primitives():
+
+                if not isinstance(prim, BoundTriangleSet):
+                    continue
 
                 #determine the VertexSemantic --------------------------------------------------------------------------
 
@@ -63,16 +91,31 @@ if __name__ == '__main__':
 
                 #-------------------------------------------------------------------------------------------------------
 
+                jsonobject['Vertices']=[]
+                jsonobject['Indices']=[]
 
                 trinr = 0
-                idx = 0;
+                idx = 0
                 while trinr < prim.ntriangles:
 
                     i=0
                     while i<3:
-                        x1 = prim.vertex[prim.vertex_index[trinr][i]][0]
-                        y1 = prim.vertex[prim.vertex_index[trinr][i]][1]
-                        z1 = prim.vertex[prim.vertex_index[trinr][i]][2]
+                        if(upaxis == "X_UP"):
+                            x1 = prim.vertex[prim.vertex_index[trinr][i]][1]*scale
+                            y1 = prim.vertex[prim.vertex_index[trinr][i]][0]*scale
+                            z1 = prim.vertex[prim.vertex_index[trinr][i]][2]*scale
+                        if(upaxis == "Y_UP"):
+                            x1 = prim.vertex[prim.vertex_index[trinr][i]][0]*scale
+                            y1 = prim.vertex[prim.vertex_index[trinr][i]][1]*scale
+                            z1 = prim.vertex[prim.vertex_index[trinr][i]][2]*scale
+                        if(upaxis == "Z_UP"):
+                            x1 = prim.vertex[prim.vertex_index[trinr][i]][1]*scale
+                            y1 = prim.vertex[prim.vertex_index[trinr][i]][2]*scale
+                            z1 = prim.vertex[prim.vertex_index[trinr][i]][0]*scale
+
+
+                        if math.isnan(float(x1)) or math.isnan(float(y1)) or math.isnan(z1):
+                            return "{\"alert \" : \" error: file contains NaN values!\"}"
 
                         jsonobject['Vertices'].append(x1)
                         jsonobject['Vertices'].append(y1)
@@ -95,6 +138,10 @@ if __name__ == '__main__':
                         if (jsonobject['VertexSemantic'].find('t') != -1):
                             u1 = prim.texcoordset[0][prim.texcoord_indexset[0][trinr][i]][0]
                             v1 = prim.texcoordset[0][prim.texcoord_indexset[0][trinr][i]][1]
+
+                            if math.isnan(float(u1)) or math.isnan(float(v1)):
+                                return "Error: File contains NaN values."
+
                             jsonobject['Vertices'].append(u1)
                             jsonobject['Vertices'].append(v1)
 
@@ -107,30 +154,41 @@ if __name__ == '__main__':
                     jsonobject['Indices'].append(idx)
                     idx = idx+1
 
-
-
                     trinr = trinr+1
 
 
-        write_to_json(jsonobject,file)
+                write_to_json(jsonobject,file)
+                file.write(',')
 
+
+        file.seek(-2,1) #set cursor pos back to remove last ','
+        file.write(']]')
+        file.close()
+        return tmpJsonFilename
 
 
     except:
         traceback.print_exc()
         print
-        print "Failed to load collada file."
-        sys.exit(1)
-
-    print
-    print 'Successfully loaded collada file.'
-    print 'There were %d errors' % len(col.errors)
-
-    for e in col.errors:
-        print e
+        return "Error: Failed to load collada file."
 
 
 
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    f = open(sys.argv[1],'r')
+    fn = sys.argv[1].split('/')
+    fn = fn[-1]
+    colladastring = f.read()
+    f.close
+
+    convertCollada(fn,colladastring,[8.365824, 47.022749, 500])
 
 
 

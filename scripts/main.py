@@ -18,15 +18,7 @@ import os.path
 import os
 import sys
 import cgi
-
-json_template = """\
-[
-  Version: "1.0",
-  Tool: "JSON-Test",
-  Message: \"%(GET)s\",
-  PythonVersion: \"%(version)s\"
-]
-"""
+from converter import *
 
 ################################################################################
 message_text = "empty!"
@@ -34,35 +26,33 @@ message_text = "empty!"
 
 def application(environ, start_response):
     # emit status / headers
-    status = "200 OK"
-    headers = [('Content-Type', 'application/json'), ]
-    #headers = [('content-type', 'text/plain')]
-    start_response(status, headers)
+
 
     form = cgi.FieldStorage(fp=environ['wsgi.input'],environ=environ)
 
     #---------------------------------------------------------------------------
     #check if input is correct!
-    if "a" not in form or "b" not in form:
-       message_text = "please specify a or b!!"
+    colladastring = form.getvalue("colladastring")
+    lng = float(form.getvalue("lng"))
+    lat = float(form.getvalue("lat"))
+    elv = float(form.getvalue("elv"))
+    filename = form.getvalue("filename")
+    prettyprint = form.getvalue("pretty")
+    json = convertCollada(filename,colladastring,[lng,lat,elv])
 
-    if "a" in form and "b" not in form:
-       message_text = "only a is defined: a=" + str(form.getvalue("a"))
+    status = "200 OK"
+    headers = [ ('Content-Disposition','attachment'),\
+    ('Content-Type', 'application/force-download'),\
+    ('Access-Control-Allow-Origin','*'),
+    ('Content-Length',str(len(json)))
 
-    if "b" in form and "a" not in form:
-       message_text = "only b is defined: b=" + str(form.getvalue("b"))
+    ]
 
-    if "a" in form and "b" in form:
-       message_text = "a=" + str(form.getvalue("a")) + " b=" + str(form.getvalue("b"))
-    #---------------------------------------------------------------------------
+    #headers = [('content-type', 'text/plain')]
+    start_response(status, headers)
 
-    # assemble and return content
-    content = json_template % {
-	    'GET': message_text,
-       'version': sys.version
-    }
-	
-    return [content]
+
+    return json
 
 #-------------------------------------------------------------------------------
 # FOR STAND ALONE EXECUTION / DEBUGGING:
