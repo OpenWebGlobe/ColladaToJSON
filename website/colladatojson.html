@@ -3,9 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+<link rel="stylesheet" type="text/css" href="styles.css">
+<link rel="stylesheet" type="text/css" href="jQuery/css/smoothness/jquery-ui-1.8.18.custom.css">
 <title>OpenWebGlobe SDK: Collada to JSON Converter</title>
 
-
+<script type="text/javascript"   src="jQuery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript"   src="jQuery/jquery-ui-1.8.18.custom.min.js"></script>
 <script type="text/javascript">
 
     var reader = null;
@@ -109,48 +112,52 @@
                 alert(jsonfilename);
             else
                 window.open('../scripts/'+jsonfilename);
-
-
-
         }
 
     }
 //----------------------------------------------------------------------------------------------------------------------
-
+    $(function() {
+        jQuery( "#divMainEntry" ).tabs();
+    });
 
 </script>
 
 </head>
 <body onload="main()">
 
-    <div id="divMainTitle"><h1>The OpenWebGlobe Collada to JSON Converter</h1></div>
+
     <div id="divMainEntry">
-        <form enctype="multipart/form-data"><!--action="input_file.htm" method="post" -->
-            <p>Select a Collada (*.dae) file or drag a file into this panel.<br>
-                <input id="input_file" name="File" type="file" size="50" maxlength="100000" accept="text/*">
+        <ul>
+            <li><a href="#tabs-1">The OpenWebGlobe Collada to JSON Converter</a></li>
+        </ul>
+        <div id="tabs-1">
+            <br>
+            <p>Select a Collada (*.dae) file.</p>
+            <input id="input_file" name="File" type="file" size="50" maxlength="100000" accept="text/*" />
+            <br><br>
             <p>Center</p>
-                <table>
-                    <td>
-                        <tr>
-                            Longitude: <input id="input_lng" type="text">
-                        </tr>
-                    </td>
-                    <td>
-                        <tr>
-                            Latitude: <input id="input_lat" type="text">
-                        </tr>
-                    </td>
-                    <td>
-                        <tr>
-                            Elevation: <input  id="input_elv" type="text">
-                        </tr>
-                    </td>
-                </table>
+            <table>
+                <td>
+                    <tr>
+                        Longitude: <input id="input_lng" size="10" type="text" />
+                    </tr>
+                </td>
+                <td>
+                    <tr>
+                        Latitude: <input id="input_lat" size="10" type="text" />
+                    </tr>
+                </td>
+                <td>
+                    <tr>
+                        Elevation: <input  id="input_elv" size="10" type="text" />
+                    </tr>
+                </td>
+            </table>
             <input type="button" value="Convert" onclick="conversionStart()">
-        </form>
+        </div>
     </div>
 
-    <div id="divPreview"></div>
+
 
 </body>
 
