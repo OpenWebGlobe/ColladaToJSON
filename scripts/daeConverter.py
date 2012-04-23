@@ -6,6 +6,7 @@ import collada
 import sys
 import traceback
 import math
+import os
 
 
 vertices = []
@@ -34,19 +35,14 @@ def write_to_json(dict,file):
 
 
 
-def convertCollada(filename,colladastring,center):
+def convertCollada(colladafilepath,center,destdir):
 
-    tmpColladaFilename = 'tmp'+filename
-    part = filename.split('.')
-    tmpJsonFilename = part[0]+'.json'
-
-    colfile = open(tmpColladaFilename,'w')
-    colfile.write(colladastring)
-    colfile.close()
+    (path,name) = os.path.split(colladafilepath)
+    tmpJsonFilename = name[:-4]+'.json'
 
     try:
 
-        col = collada.Collada(tmpColladaFilename,\
+        col = collada.Collada(colladafilepath,\
             ignore=[collada.DaeUnsupportedError, collada.DaeBrokenRefError])
 
         upaxis = col.assetInfo.upaxis;
@@ -58,7 +54,7 @@ def convertCollada(filename,colladastring,center):
 
 
 
-        file = open(tmpJsonFilename,'w')
+        file = open(destdir+"/"+tmpJsonFilename,'w')
         file.write('\t[[')
 
         for geom in col.scene.objects('geometry'):
@@ -86,7 +82,7 @@ def convertCollada(filename,colladastring,center):
 
                 if (isinstance(value, collada.material.Map)):
                     colladaimage = value.sampler.surface.image
-                    jsonobject["DiffuseMap"] = colladaimage.path
+                    jsonobject["DiffuseMap"] = colladaimage.path.split('/')[-1]
                     jsonobject['VertexSemantic'] = 'pt'
 
                 #-------------------------------------------------------------------------------------------------------
@@ -164,7 +160,7 @@ def convertCollada(filename,colladastring,center):
         file.seek(-2,1) #set cursor pos back to remove last ','
         file.write(']]')
         file.close()
-        return tmpJsonFilename
+        return destdir+"/"+tmpJsonFilename
 
 
     except:
@@ -178,17 +174,6 @@ def convertCollada(filename,colladastring,center):
 
 
 
-
-
-
-if __name__ == '__main__':
-    f = open(sys.argv[1],'r')
-    fn = sys.argv[1].split('/')
-    fn = fn[-1]
-    colladastring = f.read()
-    f.close
-
-    convertCollada(fn,colladastring,[8.365824, 47.022749, 500])
 
 
 

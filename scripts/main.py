@@ -18,7 +18,17 @@ import os.path
 import os
 import sys
 import cgi
-from converter import *
+
+sys.path.append("/var/www/converter/scripts/")
+
+from daeConverter import *
+import string
+import zipfile
+from cStringIO import StringIO
+import time
+import kmzConverter
+import shutil
+
 
 ################################################################################
 message_text = "empty!"
@@ -30,29 +40,73 @@ def application(environ, start_response):
 
     form = cgi.FieldStorage(fp=environ['wsgi.input'],environ=environ)
 
+    ##----------------------------------------------------------------------------------------------------------------------
+
+    fileitem = form['datafile']
+
+    # Test if the file was uploaded
+    if fileitem.filename:
+        # strip leading path from file name to avoid directory traversal attacks
+        fn = os.path.basename(fileitem.filename)
+        open(fn, 'wb').write(fileitem.file.read())
+        message = 'The file "' + fn + '" was uploaded successfully'
+    else:
+        message = 'No file was uploaded'
+
     #---------------------------------------------------------------------------
     #check if input is correct!
-    colladastring = form.getvalue("colladastring")
     lng = float(form.getvalue("lng"))
     lat = float(form.getvalue("lat"))
     elv = float(form.getvalue("elv"))
     filename = form.getvalue("filename")
     prettyprint = form.getvalue("pretty")
-    json = convertCollada(filename,colladastring,[lng,lat,elv])
+
+    dir = 'tmpfolder'+str(time.time())
+    dir = dir[:-3]
+    diroriginal = dir+'/temp'
+    dirnew = dir+'/out'
+    os.mkdir(dir, 0777)
+    os.mkdir(diroriginal, 0777)
+    os.mkdir(dirnew, 0777)
+
+    #check if it's a zip file...
+    print fileitem.filename[-3:]
+    if fileitem.filename[-3:]=='dae':
+        convertedfilepath = convertCollada(fn,[lng,lat,elv],dirnew)
+
+
+    elif fileitem.filename[-3:]=='kmz' or fileitem.filename[-3:]=='zip':
+        kmzconv = kmzConverter.kmzConverter();
+        convertedfilepath = kmzconv.convertKmz(fn,diroriginal,dirnew,fileitem.filename)
+    else:
+        print "filetype not suported"
+
+
+
 
     status = "200 OK"
-    headers = [ ('Content-Disposition','attachment'),\
-    ('Content-Type', 'application/force-download'),\
-    ('Access-Control-Allow-Origin','*'),
-    ('Content-Length',str(len(json)))
+    #headers = [ ('Content-Type', 'application/octet-stream'),
+    #            ('Access-Control-Allow-Origin','*'),
+    #            ('Content-Length',str(os.path.getsize(convertedfile)))]
 
+    filename = convertedfilepath.split('/')
+    filename = filename[-1]
+    fin = open(convertedfilepath, "rb")
+    size = os.path.getsize(convertedfilepath)
+    headers = [   ('Content-Type', 'application/octet-stream'),
+        ('Content-length', str(size)), ('Content-Disposition', 'attachment; filename='+filename)
     ]
 
+
+
     #headers = [('content-type', 'text/plain')]
+    #todo: insert no-cache info into the header
     start_response(status, headers)
+    return fin
 
-
-    return json
+    #delete the two folders
+    shutil.rmtree(diroriginal)
+    shutil.rmtree(dirnew)
 
 #-------------------------------------------------------------------------------
 # FOR STAND ALONE EXECUTION / DEBUGGING:
