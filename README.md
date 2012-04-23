@@ -14,7 +14,7 @@ Currently the Converter is executable from commad line:
 
 The ColladaToJson.py is the main file and should be called like this:
 
-ColladaToJson.py -i <inputfile.dae> -c lng,lat,elv
+ColladaToJson.py -i <inputfile.dae> -c <lng,lat,elv>
 
 Example: ColladaToJson -i mymodel.dae -c 7.1234,45.243,1200
 
