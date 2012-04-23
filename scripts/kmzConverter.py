@@ -12,6 +12,7 @@ from zipfile import BadZipfile, ZipFile
 import daeConverter
 import zipfile
 import shutil
+import htmlCreator
 
 class kmzConverter:
     def __init__(self, verbose = False, percent = 10):
@@ -31,7 +32,7 @@ class kmzConverter:
             kmlfile = open(filename,'r')
             pos_ori = self.extractLocation(kmlfile)
             kmlfile.close()
-            #kmlfile.delete()
+
 
         #search the colladafile
         for colladafilepath in glob.glob(dir+"/*/*.dae"):
@@ -40,8 +41,14 @@ class kmzConverter:
 
         #copy all images in the output folder
         self.copyimages(dir,dirout,'jpg', 'png','gif','json') #add supporting filetypes here...
-
         dirred = dir.split("/")
+
+        for jsonfile in glob.glob(dirout+"/*.json"):
+            #create the demo html file
+            (path,name) = os.path.split(jsonfile)
+            htmlCreator.createHTML(name,float(pos_ori[0]),float(pos_ori[1]),float(pos_ori[2]),dirout+'/modeldemo.html')
+
+
         #store the jsonfile in a new zip file
         return self.zipper(dirout,dirred[0]+'/jsonzip.zip')
 

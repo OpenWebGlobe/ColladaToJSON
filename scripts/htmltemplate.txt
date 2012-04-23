@@ -1,0 +1,73 @@
+<!--
+*****************************************************************************
+*   This is an automatically generated file for 3d model preview  			*
+*																			*
+*	Further information: 		www.openwebglobe.org						*
+*							support@openwebglobe.org						*
+*																			*
+*	Licensed under MIT License. Read the file LICENSE for more information  *
+*****************************************************************************/
+-->
+<!DOCTYPE html>
+<html lang="en">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="http://www.openwebglobe.org/js/openwebglobe-0.9.7.js"></script>
+<script type="text/javascript">
+
+    var geometrylayer = null;
+    var hidden = false;
+
+    //------------------------------------------------------------------------------
+    function main()
+    {
+        // (0) Set location of Artwork directory. Because of CORS this can't be local
+        // if you want to open this using file://...
+        ogSetArtworkDirectory("http://www.openwebglobe.org/art/");
+
+        // (1) create an OpenWebGlobe context using canvas
+        // first parameter is canvas-id and second is "fullscreen"
+        var ctx = ogCreateContextFromCanvas("canvas", true);
+
+        // (2) Create a virtual globe
+        var globe = ogCreateGlobe(ctx);
+
+        var imgOpenStreetMap =
+        {
+            url     : ["http://a.tile.openstreetmap.org", "http://b.tile.openstreetmap.org", "http://c.tile.openstreetmap.org" ],
+            service : "osm"
+        };
+        ogAddImageLayer(globe, imgOpenStreetMap);
+
+        // (6) Set the background color
+        ogSetBackgroundColor(ctx, 0.2,0.2,0.7,1);
+
+        // (7) 3D Model
+        // first, we need to retrieve the scene:
+        var scene = ogGetScene(ctx);
+
+        //then, we need to retrieve the world
+        var world = ogGetWorld(scene);
+
+        //create a geometry layer
+        geometrylayer = ogCreateGeometryLayer(world,"buildings");
+
+
+        // definition of geometry options.
+        // A geometry is a container for meshes
+        // a mesh is a container of surfaces. every surface needs a json file.
+
+
+        //create the first 3d model
+        var geometry1 = ogLoadGeometryAsync(geometrylayer,$modelpath);
+        ogFlyToLookAtPosition(scene,$lng,$lat,$elv,500,0,-45,0);
+    }
+
+</script>
+
+</head>
+<body onload="main()">
+<div style="text-align: center">
+    <canvas id="canvas"></canvas>
+</div>
+</body>
+</html>
