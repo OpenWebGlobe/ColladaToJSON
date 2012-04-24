@@ -50,7 +50,8 @@ class kmzConverter:
 
 
         #store the jsonfile in a new zip file
-        return self.zipper(dirout,dirred[0]+'/jsonzip.zip')
+        self.zipper(dirout,dirred[0]+'/jsonzip.zip')
+        return dirred[0]+"/jsonzip.zip"
 
 
     def copyimages(self, dirsrc,dirdest,*args):

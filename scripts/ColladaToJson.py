@@ -53,12 +53,16 @@ if __name__ == '__main__':
             sys.exit(2)
         convertedfilepath = convertCollada(inputfile,center,os.getcwd())
 
+        print "\n Generated model: "+convertedfilepath
+
     elif inputfile[-3:]=='kmz' or inputfile[-3:]=='zip':
         os.mkdir(os.getcwd()+'/ConversionResult', 0777)
         kmzconv = kmzConverter.kmzConverter();
         convertedfilepath = kmzconv.convertKmz(inputfile,os.getcwd()+'/tmp',os.getcwd()+'/ConversionResult',inputfile)
+        print "\n Generated model zip: "+convertedfilepath
     else:
         print "filetype not suported"
+
 
     #delete the two folders
     shutil.rmtree(os.getcwd()+'\\tmp')

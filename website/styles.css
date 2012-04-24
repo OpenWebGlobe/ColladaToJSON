@@ -36,6 +36,7 @@
     position: absolute;
     left:10%;
     top:10%;
+    width: 480px;
 
 }
 */
@@ -63,4 +64,27 @@ form
 {
     font-size: 12px;
     font-weight:bold
+}
+
+#tbPosition
+{
+
+    height: 40px;
+    margin-top: 10px;
+    
+}
+
+#divWaiting
+{
+    background-color: #FFffff;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 100;
+}
+#divWaitingImage
+{
+    left: 180px;
+    position: absolute;
+    top: 20px;
 }

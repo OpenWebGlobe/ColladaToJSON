@@ -11,23 +11,8 @@
     <script type="text/javascript"   src="jQuery/jquery-ui-1.8.18.custom.min.js"></script>
 <script type="text/javascript">
 
-    /*
-    var reader = null;
-    function readFile(file, callback)
-    {
-        reader = new FileReader();
-        reader.onload = function(evt)
-        {
-            //document.getElementById('status').innerHTML = "Ready";
-            if (typeof callback=="function")
-                callback(file, evt);
-        };
-        reader.onprogress = updateProgress;
-        reader.onerror = errorHandler;
-        reader.readAsBinaryString( file );
 
 
-    }
 
 
     function updateProgress(evt)
@@ -41,123 +26,124 @@
     }
 
 
-    function main()
-    {
-
-        
-        
-    }
-
-    function fileReadSuccess()
-    {
-        url = "http://localhost:8000/";
-        http_request = new window.XMLHttpRequest();
-        http_request.open("POST",url, true);
-        http_request.onreadystatechange =  cbfConversion;
-        http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        http_request.setRequestHeader("Content-length", reader.result.length);
-        http_request.setRequestHeader("Connection", "close");
-        // http_request.setRequestHeader("Cache-Control", "public");
-        http_request.send("colladastring="+reader.result+
-                            "&lng="+lng+"&lat="+lat+"&elv="+elv+
-                            "&filename="+filename+"&pretty=false");
-    }
-
-
-
-    var lng;
-    var lat;
-    var elv;
-    var filename;
-
     function conversionStart()
     {
-        //Check input fields
-        lng = document.getElementById("input_lng").value;
-        lat = document.getElementById("input_lat").value;
-        elv = document.getElementById("input_elv").value;
-        filename = document.getElementById("input_file").value;
+        var formElement = document.getElementById("frmForumlar");
+        var formData = new FormData(formElement);
+        formData.append("part_description", "The best part ever!");
 
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://localhost:8000/");
+        xhr.onreadystatechange = cbfConversion;
+        xhr.send(formData);
+        jQuery("#divWaiting").show();
 
-        console.log(lng);
-        console.log(lat);
-        console.log(elv);
-
-
-
-        // if all inputs are correct start upload
-        var input = document.getElementById("input_file");
-
-        if ( typeof FileReader=="undefined" || !input.files)
-        {
-            alert("Your browser doesn't support the HTML 5 File API!");
-            return;
-        }
-        if ( input.files.length < 1 )
-        {
-            alert("Please select a file!");
-            return;
-        }
-        readFile(input.files[0],fileReadSuccess);
     }
 
-    var jsonfile = null;
+
     function cbfConversion()
     {
-        if (http_request.readyState == 4 && http_request.status == 200)
+        console.log("readyState: "+this.readyState+"  this.status: "+this.status);
+        /*handle progress events here */
+        if (this.readyState == 4 && this.status == 200)
         {
-            jsonfilename = http_request.responseText;
+            var answer = this.responseText;
+            jQuery("#divWaiting").hide();
+            jQuery("#divMainEntry").enable();
 
-            //Error handling:
-            if(jsonfilename.substr(0,5).toLowerCase()=="error")
-                alert(jsonfilename);
+            if(answer.indexOf("error")>=0)
+            {
+                jQuery( "#divErrorDialog" ).html("<p>"+answer+"</p>");
+                jQuery( "#divErrorDialog" ).dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            }
             else
-                window.open('../scripts/'+jsonfilename);
+            {
+                window.open(answer);
+            }
+
         }
 
     }
 
-    */
+
 //----------------------------------------------------------------------------------------------------------------------
     $(function() {
         jQuery( "#divMainEntry" ).tabs();
+        jQuery("#tbPosition").hide();
+        jQuery("#divErrorDialog").hide();
+        jQuery("#divWaiting").hide().css({ opacity: 0.75 });;
+
     });
+
+    function cbfSubmit()
+    {
+
+        window.location.reload(true);
+
+    }
+
+    function cbfFileChanged()
+    {
+        //check the file ending -> if dae set positon update visible
+
+        var filepicker = document.getElementById("input_file");
+        var filename = filepicker.value;
+        var fileending = filename.split('.')[1];
+
+        if(fileending=='dae')
+        {
+            jQuery("#tbPosition").slideDown("slow");
+        }
+        else
+        {
+            jQuery("#tbPosition").slideUp("slow");
+        }
+    }
+
+    function cbfload()
+    {
+        alert("loadeld");
+    }
+
 
 </script>
 
 </head>
-<body onload="main()">
+<body onload>
 
+    <div id="divErrorDialog" title="Error"></div>
+
+    
 
     <div id="divMainEntry">
         <ul>
             <li><a href="#tabs-1">The OpenWebGlobe Collada to JSON Converter</a></li>
         </ul>
         <div id="tabs-1">
-            <form action="http://localhost:8000/" enctype="multipart/form-data" method="post">
+            <div id="divWaiting"><div id="divWaitingImage"><img src="ajax-loader.gif" /></div> </div>
+            <form id="frmForumlar"> <!--action="http://localhost:8000/" enctype="multipart/form-data" method="post">-->
             <br>
             <p>Select a Collada (*.dae) file.</p>
-            <input id="input_file" name="datafile" type="file" size="50" maxlength="100000" accept="text/*" />
+            <input id="input_file" onchange="cbfFileChanged()" name="datafile" type="file" size="60" maxlength="100000" accept="text/*" />
             <br><br>
-            <p>Center</p>
-            <table>
-                <tr>
-                    <td>
-                        Longitude: <input name="lng" id="input_lng" size="10" type="text" value="0.0"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Latitude: <input name="lat" size="10" type="text" value="0.0"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Elevation: <input  name="elv" size="10" type="text" value="0.0"/>
-                    </td>
-                </tr>
-            </table>
-            <input type="submit" value="Convert">
+            <div id="tbPosition">
+
+                            Longitude: <input name="lng" id="input_lng" size="10" type="text" value="0.0"/>
+
+                            Latitude: <input name="lat" size="10" type="text" value="0.0"/>
+
+
+                            Elevation: <input  name="elv" size="10" type="text" value="0.0"/>
+
+            </div>
+            <input onclick="conversionStart()" type="button" value="Convert">
             </form>
         </div>
     </div>

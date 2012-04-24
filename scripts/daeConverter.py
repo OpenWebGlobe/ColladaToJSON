@@ -164,9 +164,7 @@ def convertCollada(colladafilepath,center,destdir):
 
 
     except:
-        traceback.print_exc()
-        print
-        return "Error: Failed to load collada file."
+        return "{'error': Error: Unable to read collada file.}"
 
 
 

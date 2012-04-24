@@ -46,8 +46,15 @@ def application(environ, start_response):
 
     # Test if the file was uploaded
     if fileitem.filename:
-        # strip leading path from file name to avoid directory traversal attacks
-        fn = os.path.basename(fileitem.filename)
+        dir = '../output/tmpfolder'+str(time.time())
+        dir = dir[:-3]
+        diroriginal = dir+'/temp'
+        dirnew = dir+'/out'
+        os.mkdir(dir, 0777)
+        os.mkdir(diroriginal, 0777)
+        os.mkdir(dirnew, 0777)
+
+        fn = diroriginal+"/"+os.path.basename(fileitem.filename)
         open(fn, 'wb').write(fileitem.file.read())
         message = 'The file "' + fn + '" was uploaded successfully'
     else:
@@ -61,48 +68,38 @@ def application(environ, start_response):
     filename = form.getvalue("filename")
     prettyprint = form.getvalue("pretty")
 
-    dir = 'tmpfolder'+str(time.time())
-    dir = dir[:-3]
-    diroriginal = dir+'/temp'
-    dirnew = dir+'/out'
-    os.mkdir(dir, 0777)
-    os.mkdir(diroriginal, 0777)
-    os.mkdir(dirnew, 0777)
+
 
     #check if it's a zip file...
     print fileitem.filename[-3:]
     if fileitem.filename[-3:]=='dae':
-        convertedfilepath = convertCollada(fn,[lng,lat,elv],dirnew)
+        if(lng==0 or lat==0):
+            convertedfilepath  = "error: longitude or latitute is null..."
+        else:
+            convertedfilepath = convertCollada(fn,[lng,lat,elv],dirnew)
 
 
     elif fileitem.filename[-3:]=='kmz' or fileitem.filename[-3:]=='zip':
         kmzconv = kmzConverter.kmzConverter();
         convertedfilepath = kmzconv.convertKmz(fn,diroriginal,dirnew,fileitem.filename)
     else:
-        print "filetype not suported"
+        convertedfilepath =  "error: filetype not suported"
 
 
 
 
     status = "200 OK"
-    #headers = [ ('Content-Type', 'application/octet-stream'),
-    #            ('Access-Control-Allow-Origin','*'),
-    #            ('Content-Length',str(os.path.getsize(convertedfile)))]
+    headers = [ ('Content-Type', 'text/json'),
+                ('Access-Control-Allow-Origin','*'),
+                ('Content-Length',str(len(convertedfilepath)))]
 
-    filename = convertedfilepath.split('/')
-    filename = filename[-1]
-    fin = open(convertedfilepath, "rb")
-    size = os.path.getsize(convertedfilepath)
-    headers = [   ('Content-Type', 'application/octet-stream'),
-        ('Content-length', str(size)), ('Content-Disposition', 'attachment; filename='+filename)
-    ]
 
 
 
     #headers = [('content-type', 'text/plain')]
     #todo: insert no-cache info into the header
     start_response(status, headers)
-    return fin
+    return convertedfilepath
 
     #delete the two folders
     shutil.rmtree(diroriginal)
