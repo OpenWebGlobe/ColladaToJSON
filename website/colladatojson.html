@@ -30,7 +30,7 @@
     {
         var formElement = document.getElementById("frmForumlar");
         var formData = new FormData(formElement);
-        formData.append("part_description", "The best part ever!");
+        //formData.append("part_description", "The best part ever!");
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "http://localhost:8000/");
@@ -49,7 +49,6 @@
         {
             var answer = this.responseText;
             jQuery("#divWaiting").hide();
-            jQuery("#divMainEntry").enable();
 
             if(answer.indexOf("error")>=0)
             {

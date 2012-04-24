@@ -26,22 +26,43 @@ class kmzConverter:
         un = unzip.unzip()
         un.extract(file,dir)
 
+        nrkml = 0;
+        nrcollada = 0
 
-        #extract the lng,lat,elv form kml file
-        for filename in glob.glob(dir+"/*.kml"):
-            kmlfile = open(filename,'r')
-            pos_ori = self.extractLocation(kmlfile)
-            kmlfile.close()
+        for root, dirs, files in os.walk(dir):
+            for name in files:
+                if name.endswith((".kml")):
+                    kmlfile = open(os.path.join(root, name),'r')
+                    pos_ori = self.extractLocation(kmlfile)
+                    kmlfile.close()
+                    nrkml = nrkml+1
+
+                if name.endswith((".dae")):
+                    colladafilepath = os.path.join(root, name)
+                    (path,name) = os.path.split(colladafilepath)
+                    nrcollada = nrcollada+1
+
+        if(nrkml==0):
+            return "error: no georeference info in zip file. Try to convert the *dae file separately !"
+
+        if(nrkml>1):
+            return "error: more than one kml file in zipfile. Convert multiple models separately !"
+
+        if(nrcollada==0):
+            return "error: no *.dae file found in zip file !"
+
+        if(nrcollada>1):
+            return "error: multiple collada files in zip file. Convert multiple models separately !"
 
 
-        #search the colladafile
-        for colladafilepath in glob.glob(dir+"/*/*.dae"):
-            (path,name) = os.path.split(colladafilepath)
-            convertCollada(colladafilepath,[float(pos_ori[0]),float(pos_ori[1]),float(pos_ori[2])],dirout) #writes the jsonfile into the extracted folder structure
+
+        convertCollada(colladafilepath,[float(pos_ori[0]),float(pos_ori[1]),float(pos_ori[2])],dirout) #writes the jsonfile into the extracted folder structure
+
+
 
         #copy all images in the output folder
         self.copyimages(dir,dirout,'jpg', 'png','gif','json') #add supporting filetypes here...
-        dirred = dir.split("/")
+        dirred = dir[:-5]
 
         for jsonfile in glob.glob(dirout+"/*.json"):
             #create the demo html file
@@ -50,8 +71,8 @@ class kmzConverter:
 
 
         #store the jsonfile in a new zip file
-        self.zipper(dirout,dirred[0]+'/jsonzip.zip')
-        return dirred[0]+"/jsonzip.zip"
+        self.zipper(dirout,dirred+'/jsonzip.zip')
+        return dirred+"/jsonzip.zip"
 
 
     def copyimages(self, dirsrc,dirdest,*args):
