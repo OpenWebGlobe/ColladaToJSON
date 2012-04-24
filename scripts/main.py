@@ -40,13 +40,26 @@ def application(environ, start_response):
 
     form = cgi.FieldStorage(fp=environ['wsgi.input'],environ=environ)
 
-    ##----------------------------------------------------------------------------------------------------------------------
+
+    #check if input is correct!
+    lng = float(form.getvalue("lng"))
+    lat = float(form.getvalue("lat"))
+    elv = float(form.getvalue("elv"))
+    filename = form.getvalue("filename")
+    prettyprint = form.getvalue("pretty")
+    isLocal = int(form.getvalue("isLocal"))
+
 
     fileitem = form['datafile']
 
     # Test if the file was uploaded
     if fileitem.filename:
-        dir = '../output/tmpfolder'+str(time.time())
+        if isLocal == 1:
+            dir = '../output/tmpfolder'+str(time.time())
+        else:
+            dir = '/var/www/converter/output/tmpfolder'+str(time.time())
+
+
         dir = dir[:-3]
         diroriginal = dir+'/temp'
         dirnew = dir+'/out'
@@ -60,18 +73,11 @@ def application(environ, start_response):
     else:
         message = 'No file was uploaded'
 
-    #---------------------------------------------------------------------------
-    #check if input is correct!
-    lng = float(form.getvalue("lng"))
-    lat = float(form.getvalue("lat"))
-    elv = float(form.getvalue("elv"))
-    filename = form.getvalue("filename")
-    prettyprint = form.getvalue("pretty")
 
 
 
     #check if it's a zip file...
-    print fileitem.filename[-3:]
+    #print fileitem.filename[-3:]
     if fileitem.filename[-3:]=='dae':
         if(lng==0 or lat==0):
             convertedfilepath  = "error: longitude or latitute is null..."
@@ -87,23 +93,20 @@ def application(environ, start_response):
 
 
 
-
     status = "200 OK"
     headers = [ ('Content-Type', 'text/json'),
                 ('Access-Control-Allow-Origin','*'),
-                ('Content-Length',str(len(convertedfilepath)))]
+                ('Content-Length',str(len(convertedfilepath))),
+                ('Cache-Control','no-cache')]
 
 
 
-
-    #headers = [('content-type', 'text/plain')]
-    #todo: insert no-cache info into the header
     start_response(status, headers)
     return convertedfilepath
 
     #delete the two folders
-    shutil.rmtree(diroriginal)
-    shutil.rmtree(dirnew)
+   # shutil.rmtree(diroriginal)
+   # shutil.rmtree(dirnew)
 
 #-------------------------------------------------------------------------------
 # FOR STAND ALONE EXECUTION / DEBUGGING:

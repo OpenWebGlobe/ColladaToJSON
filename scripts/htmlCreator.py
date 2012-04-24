@@ -1,11 +1,12 @@
 __author__ = 'benjamin.loesch'
 
 import string
+import os
 
 
 def createHTML(jsonfilename,lng,lat,elv,outpath):
 
-    htmltemplate = open('htmltemplate.txt','r')
+    htmltemplate = open(os.getcwd()+'/htmltemplate.txt','r')
     htmltemplatestring =  string.Template(htmltemplate.read())
     htmltemplate.close()
 

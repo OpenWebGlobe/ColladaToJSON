@@ -13,6 +13,7 @@ import daeConverter
 import zipfile
 import shutil
 import htmlCreator
+sys.path.append("/var/www/converter/scripts/")
 
 class kmzConverter:
     def __init__(self, verbose = False, percent = 10):
@@ -85,7 +86,7 @@ class kmzConverter:
                     if os.path.splitext(dirfile)[1][1:] in args:
                         shutil.copyfile(dirfile, os.path.join(dirdest, file))
             elif os.path.isdir(dirfile):
-                print "Accessing directory:", dirfile
+                #print "Accessing directory:", dirfile
                 self.copyimages(dirfile,dirdest, *args)
             else:
                 pass
@@ -128,7 +129,7 @@ class kmzConverter:
             for f in files:
                 fullpath = os.path.join(root, f)
                 archive_name = os.path.join(archive_root, f)
-                print f
+                #print f
                 zip.write(fullpath, archive_name, zipfile.ZIP_DEFLATED)
         zip.close()
         return zip_file

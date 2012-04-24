@@ -50,7 +50,7 @@ class unzip:
                 print "Extracting %s" % name
             elif perc > 0 and (i % perc) == 0 and i > 0:
                 complete = int (i / perc) * percent
-                print "%s%% complete" % complete
+
 
             if not name.endswith('/'):
                 try:
