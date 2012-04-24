@@ -17,19 +17,22 @@ index = []
 
 def write_to_json(dict,file):
 
-
+    nr=0
     file.write('{\n')
     for key in dict:
         if str(key)=='Color':
             continue
         value = dict[key]
+        if not nr==0:
+            file.write(",")
         if(str(key)=='color'):
             continue
         if(isinstance(value,str)):
-            file.write('\"'+str(key)+'\" : \"'+str(dict[key])+'\",\n')
+            file.write('\"'+str(key)+'\" : \"'+str(dict[key])+'\"\n')
         else:
-            file.write('\"'+str(key)+'\" : '+str(dict[key])+',\n')
-    file.seek(-3,1) #set cursor pos back to remove last ','
+            file.write('\"'+str(key)+'\" : '+str(dict[key])+'\n')
+        nr+=1
+    #file.seek(-10,1) #set cursor pos back to remove last ','
     file.write('\n\t}\n')
 
 
@@ -157,7 +160,7 @@ def convertCollada(colladafilepath,center,destdir):
                 file.write(',')
 
 
-        file.seek(-2,1) #set cursor pos back to remove last ','
+        #file.seek(-1,1) #set cursor pos back to remove last ','
         file.write(']]')
         file.close()
         return destdir+"/"+tmpJsonFilename
