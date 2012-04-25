@@ -16,7 +16,7 @@ import htmlCreator
 sys.path.append("/var/www/converter/scripts/")
 
 class kmzConverter:
-    def __init__(self, verbose = False, percent = 10):
+    def __init__(self, verbose = True, percent = 10):
         self.verbose = verbose
         self.percent = percent
 
@@ -109,11 +109,11 @@ class kmzConverter:
        #     print '\tRoll: %s' % orientation.find('{%s}roll' % namespace).text
        # print '\tTilt: %s' % orientation.find('{%s}tilt' % namespace).text
        # print '\tHeading: %s' % orientation.find('{%s}heading' % namespace).text
-        for location in et.findall('//{%s}Location' % namespace):
+        for location in et.findall('.//{%s}Location' % namespace):
             lng = location.find('{%s}longitude' % namespace).text
             lat = location.find('{%s}latitude' % namespace).text
             elv = location.find('{%s}altitude' % namespace).text
-        for orientation in et.findall('//{%s}Orientation' % namespace):
+        for orientation in et.findall('.//{%s}Orientation' % namespace):
             yaw = orientation.find('{%s}heading' % namespace).text
             pitch = orientation.find('{%s}tilt' % namespace).text
             roll = orientation.find('{%s}roll' % namespace).text

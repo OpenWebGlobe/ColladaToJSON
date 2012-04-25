@@ -42,31 +42,52 @@ if __name__ == '__main__':
 
     print 'Input file is "', inputfile+'"'
 
+    if(len(sys.argv)<2):
+        print "Wrong parameters...\n"
+        print "Usage: ColladaToJson.py -i <inputfile.dae> -c lng,lat,elv\nExample: ColladaToJson -i mymodel.dae -c 7.1234,45.243,1200"
+        sys.exit(2)
 
-    #check if it's a zip file..
-    if inputfile[-3:]=='dae':
-        try:
-            center
-        except:
-            print 'No center defined!'
-            print "Usage: ColladaToJson.py -i <inputfile.dae> -c lng,lat,elv\nExample: ColladaToJson -i mymodel.dae -c 7.1234,45.243,1200"
+    try:
+        dir = 'ConvertedModel_'+str(time.time())
+        dir = dir[:-3]
+        diroriginal = dir+'/temp'
+        dirnew = dir+'/out'
+        os.mkdir(dir, 0777)
+        os.mkdir(diroriginal, 0777)
+        os.mkdir(dirnew, 0777)
+
+        #check if it's a zip file..
+        if inputfile[-3:]=='dae':
+            try:
+                center
+            except:
+                print 'No center defined!'
+                print "Usage: ColladaToJson.py -i <inputfile.dae> -c lng,lat,elv\nExample: ColladaToJson -i mymodel.dae -c 7.1234,45.243,1200"
+                sys.exit(2)
+            convertedfilepath = convertCollada(inputfile,center,dir)
+
+            print "\n Generated model: "+convertedfilepath
+
+        elif inputfile[-3:]=='kmz' or inputfile[-3:]=='zip':
+            kmzconv = kmzConverter.kmzConverter();
+            convertedfilepath = kmzconv.convertKmz(inputfile,diroriginal,dirnew,inputfile)
+            print "\n Generated model zip: "+convertedfilepath
+        else:
+            print "filetype not suported"
+
+        if convertedfilepath.find('error')>0:
+            print convertedfilepath
             sys.exit(2)
-        convertedfilepath = convertCollada(inputfile,center,os.getcwd())
+            os.rmdir(dir)
 
-        print "\n Generated model: "+convertedfilepath
-
-    elif inputfile[-3:]=='kmz' or inputfile[-3:]=='zip':
-        os.mkdir(os.getcwd()+'/ConversionResult', 0777)
-        kmzconv = kmzConverter.kmzConverter();
-        convertedfilepath = kmzconv.convertKmz(inputfile,os.getcwd()+'/tmp',os.getcwd()+'/ConversionResult',inputfile)
-        print "\n Generated model zip: "+convertedfilepath
-    else:
-        print "filetype not suported"
+        shutil.rmtree(diroriginal)
+        shutil.rmtree(dirnew)
+        print '\n\n Conversion Succesful\n See the converted model in new folder: '+dir
+    except:
+        print sys.exc_info()[1]
+        sys.exit(2)
 
 
-    #delete the two folders
-    shutil.rmtree(os.getcwd()+'\\tmp')
-    shutil.rmtree(os.getcwd()+'\\ConversionResult')
 
 
 
