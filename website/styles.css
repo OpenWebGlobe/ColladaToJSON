@@ -76,11 +76,12 @@ form
 
 #divWaiting
 {
-    background-color: #FFffff;
-    height: 100%;
-    width: 100%;
+    background-color: #FFFFFF;
+    height: 66%;
     position: absolute;
+    width: 95%;
     z-index: 100;
+    top: 26%;
 }
 #divWaitingImage
 {

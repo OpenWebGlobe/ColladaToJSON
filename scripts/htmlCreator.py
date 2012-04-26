@@ -2,11 +2,13 @@ __author__ = 'benjamin.loesch'
 
 import string
 import os
-
+import urllib
 
 def createHTML(jsonfilename,lng,lat,elv,outpath):
 
-   htmltemplate = open('htmltemplate.txt','r')
+
+   htmltemplate = urllib.urlopen('http://www.openwebglobe.org/converter/scripts/html.txt')
+
    htmltemplatestring =  string.Template(htmltemplate.read())
    htmltemplate.close()
 

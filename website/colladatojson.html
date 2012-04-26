@@ -11,7 +11,7 @@
     <script type="text/javascript"   src="jQuery/jquery-ui-1.8.18.custom.min.js"></script>
 <script type="text/javascript">
 
-    var local = true;
+    var local = false;
 
 
     function updateProgress(evt)
@@ -61,6 +61,7 @@
 
         xhr.onreadystatechange = cbfConversion;
         xhr.onerror = errorHandler;
+        xhr.ontimeout = errorHandler;
         xhr.send(formData);
         jQuery("#divWaiting").show();
 
@@ -112,6 +113,19 @@
 
             }
 
+        }
+        if (this.status == 500)
+        {
+            jQuery("#divWaiting").hide();
+            jQuery( "#divErrorDialog" ).html("<p>NetworkError: 500 Internal Server Error</p>");
+            jQuery( "#divErrorDialog" ).dialog({
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
         }
 
     }
