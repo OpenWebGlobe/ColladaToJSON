@@ -32,7 +32,7 @@ def write_to_json(dict,file):
         else:
             file.write('\"'+str(key)+'\" : '+str(dict[key])+'\n')
         nr+=1
-    #file.seek(-10,1) #set cursor pos back to remove last ','
+
     file.write('\n\t}\n')
 
 
